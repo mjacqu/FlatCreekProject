@@ -4,7 +4,9 @@ from PIL import Image
 import coreglib #from https://github.com/dshean/demcoreg/tree/master/demcoreg
 import matplotlib.pyplot as plt
 from scipy import stats
-
+import richdem
+from osgeo import gdal
+import os
 '''
 Coregister two DEMs using the approach defined by Nuuth and Kääb, 2011.
 Do iteratively.
@@ -14,6 +16,41 @@ ulx = -3120657.000
 uly = 364089.000
 lrx = -3102213.000
 lry = 349321.000
+
+rd = richdem.LoadGDAL("/Users/mistral/Documents/CUBoulder/Science/Sulzer/VolumeCalculations/NewProcessingSummer2018/20141012.tif",
+                no_data = 3.40282e+38)
+
+
+file = "/Users/mistral/Documents/CUBoulder/Science/Sulzer/VolumeCalculations/NewProcessingSummer2018/20141012.tif"
+ds = gdal.Open(file)
+band = ds.GetRasterBand(1)
+arr = band.ReadAsArray()
+[cols, rows] = arr.shape
+
+plt.imshow(arr, interpolation='none', vmin = 1000, vmax = 4000)
+plt.colorbar()
+plt.show()
+
+gt = ds.GetGeoTransform()
+
+outFileName = '/Users/mistral/Documents/CUBoulder/Science/Sulzer/VolumeCalculations/NewProcessingSummer2018/shiftedDEM.tif'
+driver = gdal.GetDriverByName("GTiff")
+outdata = driver.Create(outFileName, rows, cols, 1, gdal.GDT_Float32)
+outdata.SetGeoTransform([-3120647.0, 2.0, 0.0, 364099.0, 0.0, -2.0])##change geotransform
+#outdata.SetGeoTransform(ds.GetGeoTransform())##sets same geotransform as input
+outdata.SetProjection(ds.GetProjection())##sets same projection as input
+outdata.GetRasterBand(1).WriteArray(arr)
+outdata.GetRasterBand(1).SetNoDataValue(-3.40282e+38)##if you want these values transparent
+#stop here and use outdata as the shifted DEM to use in new iteration
+newband = outdata.GetRasterBand(1)
+newarray = newband.ReadAsArray()
+
+#For saving final, shifted DEM use the following, together with lines above:
+outdata.FlushCache() ##saves to disk!!
+outdata = None
+band=None
+ds=None
+
 
 #import datasets where unstable areas are masked out
 DH = np.array(Image.open("/Users/mistral/Documents/CUBoulder/Science/Sulzer/VolumeCalculations/2014minus2012_StableAreamask.tif"))
@@ -50,20 +87,20 @@ is an elevation bias (from snow or the like)
 
 '''
 # 2016_2014
-DH_shifted = np.array(Image.open("/Users/mistral/Documents/CUBoulder/Science/Sulzer/VolumeCalculations/2016minus2014_dxdy_StableAreamask.tif"))
-H_shifted = np.array(Image.open("/Users/mistral/Documents/CUBoulder/Science/Sulzer/VolumeCalculations/20160313_dxdy_StableAreaMask.tif"))
+fp = '/Users/mistral/Documents/CUBoulder/Science/Sulzer/VolumeCalculations/NewProcessingSummer2018'
+f_DH = "201909_2015minus2014_StableAreamask.tif"
+f_H = "20150908.tif"
 
-# 2014_2012
-DH_shifted = np.array(Image.open("/Users/mistral/Documents/CUBoulder/Science/Sulzer/VolumeCalculations/2014minus2012_StableAreamask.tif"))
-H_shifted = np.array(Image.open("/Users/mistral/Documents/CUBoulder/Science/Sulzer/VolumeCalculations/20141012_StableAreaMask.tif"))
+DH = np.array(Image.open(os.path.join(fp, f_DH)))
+H = np.array(Image.open(os.path.join(fp, f_H)))
 
-DH_shifted[DH_shifted == -9999] = np.nan
-H_shifted[H_shifted == -9999] = np.nan
+DH[DH == -9999] = np.nan
+H[H == -9999] = np.nan
 
-dh_shifted = pd.Series(DH_shifted.flatten())
-h_shifted = pd.Series(H_shifted.flatten())
+dh = pd.Series(DH.flatten())
+h = pd.Series(H.flatten())
 
-nan_mask = ~np.isnan(dh_shifted) & ~np.isnan(h_shifted)
+nan_mask = ~np.isnan(dh) & ~np.isnan(h)
 
 #bin values
 bin_values = np.arange(start=1000, stop=3300, step=50)
@@ -73,8 +110,8 @@ for i in range(0,len(bin_values)-1):
 
 boxes = []
 for i in range (0,len(bin_values)-1):
-    h_mask = (h_shifted >= bin_values[i]) & (h_shifted < bin_values[i+1])
-    box = (dh_shifted[h_mask][nan_mask]).values
+    h_mask = (h >= bin_values[i]) & (h < bin_values[i+1])
+    box = (dh[h_mask][nan_mask]).values
     boxes.append(box)
 
 

@@ -6,10 +6,10 @@ Calculate volumes of different events at Flat Creek
 '''
 
 arcticdem_res = 2
-Main2013 = CalculateVolumes("MainLoss2013.shp", "2014minus2012_dxdydz.tif", arcticdem_res)
-Max2013 = CalculateVolumes("MaxLoss2013.shp", "2014minus2012_dxdydz.tif", arcticdem_res)
-Main2015 = CalculateVolumes("MainLoss2015.shp", "2016minus2014_dxdydz.tif", arcticdem_res)
-Max2015 = CalculateVolumes("MaxLoss2015.shp", "2016minus2014_dxdydz.tif", arcticdem_res)
+Main2013 = CalculateVolumes("MainLoss2013.shp", "201909_2014minus2012.tif", arcticdem_res)
+Max2013 = CalculateVolumes("MaxLoss2013.shp", "201909_2014minus2012.tif", arcticdem_res)
+Main2015 = CalculateVolumes("MainLoss2015.shp", "201909_2015minus2014.tif", arcticdem_res)
+Max2015 = CalculateVolumes("MaxLoss2015.shp", "201909_2015minus2014.tif", arcticdem_res)
 MainTotal = CalculateVolumes("TotalLossMain.shp", "2016minus2012.tif", arcticdem_res)
 FullBasinTotal = CalculateVolumes("TotalLossFullBasin.shp", "2016minus2012.tif", arcticdem_res)
 MainLoss2013 = CalculateVolumes("Deposit2013.shp", "2014minus2012_dxdydz.tif", arcticdem_res)

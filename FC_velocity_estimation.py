@@ -8,8 +8,8 @@ import itertools
     in different years from digitized trimlines.
 
     Velocity from superelevation:
-    # $u_{superelev} = np.sqrt(R*g*np.sin(beta))$
-    # $u_{superelev}$ = velocity from superelevation
+    # u_superelev = np.sqrt(R*g*np.sin(beta))$
+    # u_superelev = velocity from superelevation
     # R = Radius
     # g = gravitational acceleration
     # beta = superelevation angle between the width of the two trimlines and the
@@ -58,7 +58,7 @@ plt.show()
 # Calculate and plot (boxplot) superelevation based on equations described above
 dH = [superelev2015_E1 - superelev2015_W1, superelev2015_E2 - superelev2015_W2]
 g = 9.81 #m&s^2
-C_est = [11.2, 14.2, 11.7, 13.1] # see circles R1, R2, R3, R4 drawn in Google Earth and saved as kmz files
+C_est = [14.2, 13.1, 12.1, 8.49, 5.98, 3.71, ] # circumference of circles R2, R4, R5, R6, R7 drawn in Google Earth and saved as kmz files
 R_est = [(x*1000)/(2*np.pi) for x in C_est]
 width = [760, 650, 538, 615, 538, 913, 792, 705, 561, 690]
 beta = [np.arctan(float(i)/j) for i,j in itertools.product(dH,width)] # all possible beta parameters
@@ -67,6 +67,7 @@ u_superelevation = [np.sqrt(i*g*np.sin(j)) for i,j in itertools.product(R_est,be
 
 boxplot = plt.boxplot(u_superelevation)
 [item.get_ydata() for item in boxplot['whiskers']]
+plt.title('2015 Superelevation Velocities')
 plt.show()
 
 # ### Velocity from runup 2015
@@ -80,6 +81,7 @@ u_hill2015 = [np.sqrt(2*g*h) for h in hill_height]
 
 boxplot = plt.boxplot(u_hill2015)
 [item.get_ydata() for item in boxplot['whiskers']]
+plt.title('2015 Runup Velocities')
 plt.show()
 
 # ### Velocity from runup 2013
@@ -93,6 +95,7 @@ u_hill2013 = [np.sqrt(2*g*h) for h in hill_height]
 
 boxplot = plt.boxplot(u_hill2013)
 [item.get_ydata() for item in boxplot['whiskers']]
+plt.title('2013 Runup Velocities')
 plt.show()
 
 # ### Super-elevation 2013

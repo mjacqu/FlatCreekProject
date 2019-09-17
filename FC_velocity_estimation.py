@@ -72,7 +72,7 @@ plt.show()
 
 # ### Velocity from runup 2015
 
-runup_2015 = '/Users/mistral/Documents/CUBoulder/Science/Sulzer/data/TerrainAnalysis/runup_velocities2013.csv'
+runup_2015 = '/Users/mistral/Documents/CUBoulder/Science/Sulzer/data/TerrainAnalysis/runup_velocities2015.csv'
 
 runup_2015 = pd.read_csv(runup_2015, header = 0, names = ['1','2','3','4','5','6','7','8','9','10'])
 hill_height = [runup_2015.max() - runup_2015.min()]

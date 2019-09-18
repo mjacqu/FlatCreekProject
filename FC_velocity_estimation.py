@@ -8,7 +8,7 @@ import itertools
     in different years from digitized trimlines.
 
     Velocity from superelevation:
-    # u_superelev = np.sqrt(R*g*np.sin(beta))$
+    # u_superelev = np.sqrt(R*g*np.sin(beta))
     # u_superelev = velocity from superelevation
     # R = Radius
     # g = gravitational acceleration
@@ -29,8 +29,11 @@ elevations = pd.read_csv(in_file, ',', header = 1 ,
 
 # Super-elevation 2015 (take mean between boundaries 1 and 2 which correspond
 # to main superelevation sites in the fiel.)
-boundary1 = [1100, 1500]
-boundary2 = [1800, 2200]
+boundary1 = [1100, 1300]
+boundary2 = [1300, 1500]
+boundary3 = [1500, 1700]
+boundary4 = [1700, 1900]
+boundary4 = [1900, 2100]
 superelev2015_E1 = elevations.H_2015e[(elevations.dist_2015e > boundary1[0])& (elevations.dist_2015e < boundary1[1])].mean()
 superelev2015_W1 = elevations.H_2015w[(elevations.dist_2015w > boundary1[0])& (elevations.dist_2015w < boundary1[1])].mean()
 superelev2015_E2 = elevations.H_2015e[(elevations.dist_2015e > boundary2[0])& (elevations.dist_2015e < boundary2[1])].mean()
@@ -57,15 +60,15 @@ plt.show()
 
 # Calculate and plot (boxplot) superelevation based on equations described above
 dH = [superelev2015_E1 - superelev2015_W1, superelev2015_E2 - superelev2015_W2]
-g = 9.81 #m&s^2
-C_est = [14.2, 13.1, 12.1, 8.49, 5.98, 3.71, ] # circumference of circles R2, R4, R5, R6, R7 drawn in Google Earth and saved as kmz files
+g = 9.81 #ms^-2
+C_est = [11.2, 14.2, 11.7, 13.1, 12.1, 8.49, 5.98, 3.71 ] # circumference of circles R1-R8 drawn in Google Earth and saved as kmz files
 R_est = [(x*1000)/(2*np.pi) for x in C_est]
-width = [760, 650, 538, 615, 538, 913, 792, 705, 561, 690]
-beta = [np.arctan(float(i)/j) for i,j in itertools.product(dH,width)] # all possible beta parameters
+width = [760, 650, 538, 615, 538, 886, 792, 705, 561, 690]
+beta = [(float(dH)/width) for dH, width in itertools.product(dH,width)] # all possible beta parameters
 
-u_superelevation = [np.sqrt(i*g*np.sin(j)) for i,j in itertools.product(R_est,beta)]
+u_superelevation2015 = [np.sqrt(R*g*beta) for R,beta in itertools.product(R_est,beta)]
 
-boxplot = plt.boxplot(u_superelevation)
+boxplot = plt.boxplot(u_superelevation2015)
 [item.get_ydata() for item in boxplot['whiskers']]
 plt.title('2015 Superelevation Velocities')
 plt.show()
@@ -118,3 +121,12 @@ plt.show()
 
 
 # #### No superelevation in case of the 2013 flow because the "super-elevation" is opposite to the expected pattern (i.e. where it turns left at West Hill, the eastern elevation is lower).
+# plot with all velocity box subplots
+boxplot = plt.boxplot(u_hill2013, u_hill2015)
+[item.get_ydata() for item in boxplot['whiskers']]
+boxplot = plt.boxplot(u_hill2015)
+[item.get_ydata() for item in boxplot['whiskers']]
+boxplot = plt.boxplot(u_superelevation2015)
+[item.get_ydata() for item in boxplot['whiskers']]
+plt.title('Flat Creek Flow Velocities')
+plt.show()

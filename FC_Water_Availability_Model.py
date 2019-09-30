@@ -1,4 +1,6 @@
 import pandas as pd
+from pandas.plotting import register_matplotlib_converters
+register_matplotlib_converters()
 import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
@@ -8,7 +10,7 @@ import numpy.polynomial.polynomial as poly
 import VariousFunctions_FC
 
 '''
-Run water availability caclulation for ARU at hourly resolution.
+Run water availability caclulation for Flat Creek at hourly resolution.
 '''
 
 # load hourly data and set indecies and time zones
@@ -28,51 +30,22 @@ FC_hourly['pcpt'] = FC_hourly_pcpt.pcpt
 
 # Correct temperature data
 ERA_elev = 1948
-calc_elev = 2200
+#calc_elev = 2200
+calc_elevations = 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700 #to cycle through all elevation bands
 lapse_rate = 0.006
 FC_hourly['t2_lapse'] = FC_hourly.t2  + ((ERA_elev - calc_elev) * lapse_rate) #lapse rate of 0.6K per 100m as in Kääb et al., 2018
 
 # temperature de-biasing
 reg_coefs = [1.4781479 , 1.8307034 , 0.02481807] #coefficients from correction for max temp from FlatCreekMeteo-datetimeindex.ipynb
 FC_hourly['t2_debias'] = reg_coefs[2]*FC_hourly.t2_lapse**2 + reg_coefs[1]*FC_hourly.t2_lapse + reg_coefs[0]
+max_coefs = [1.6084426899832067, 3.4718580485725994]
+FC_hourly['t2_debias'] = reg_coefs[0]*FC_hourly.t2_lapse + reg_coefs[1]
 
 # Hourly melt model
 df = FC_hourly
 ddf_i = 4.87/24
 ddf_s = 2.7/24
-total_snow = np.zeros(len(df))
-melt = np.zeros(len(df))
-total_rain = np.zeros(len(df))
-for i in range(0, len(df)):
-    if df.index[i].month == 9 and df.index[i].day == 30 and df.index[i].hour == 0:
-        print('Resetting values at the end of WY ' + str(df.index[i].year))
-        total_snow[i] = 0
-        melt[i] = 0
-        total_rain[i] = 0
-    else:
-        # if temps are negative, accumulate snow, melt and rain stay unchanged
-        if df.t2_debias[i] <= 0:
-            total_snow[i] = total_snow[i-1] + df.pcpt[i]
-            melt[i] = melt[i-1]
-            total_rain[i] = total_rain[i-1]
-        # if temps are positive:
-        else:
-            # add precip:
-            total_rain[i] = total_rain[i-1] + df.pcpt[i]
-            # start melting using different melt factors for snow and ice:
-            if total_snow[i-1] > 0:
-                #check if enough snow to melt
-                max_snow_melt = df.t2_debias[i]*ddf_s
-                if max_snow_melt < total_snow[i-1]:
-                    total_snow[i] = total_snow[i-1] - max_snow_melt
-                    melt[i] = melt[i-1] + df.t2_debias[i] * ddf_s
-                else:
-                    total_snow[i] = 0
-                    melt[i] = melt[i-1] + total_snow[i-1] + (df.t2_debias[i]*ddf_s-total_snow[i-1])*(ddf_i/ddf_s)
-            else:
-                total_snow[i] = 0
-                melt[i] = melt[i-1] + df.t2_debias[i]*ddf_i
-
+t, m, r, s = VariousFunctions_FC.water_availability(df, ddf_i, ddf_s)
 
 #aggregate in data frame
 FC_hourly['melt'] = melt
@@ -88,7 +61,7 @@ FC_water_availability_summer = (FC_Summer.groupby(FC_Summer.index.year).total_wa
 FC_melt_summer = (FC_Summer.groupby(FC_Summer.index.year).melt.max()
                   - FC_Summer.groupby(FC_Summer.index.year).melt.min())
 
-FC_summer_water_trend = get_trend(FC_water_availability_summer,1)
+FC_summer_water_trend = VariousFunctions_FC.get_trend(FC_water_availability_summer,1)
 
 
 # Plot water availability
@@ -109,9 +82,9 @@ plt.show()
 #plt.savefig('Total_water_April_July.png')
 
 # Get standard deviation from long term mean for different years
-get_std(FC_water_availability_summer,2013)
-get_std(FC_water_availability_summer,2014)
-get_std(FC_water_availability_summer,2015)
+VariousFunctions_FC.get_std(FC_water_availability_summer,2013)
+VariousFunctions_FC.get_std(FC_water_availability_summer,2014)
+VariousFunctions_FC.get_std(FC_water_availability_summer,2015)
 
 #Get individual values
 FC_water_availability_summer[FC_water_availability_summer.index == 2015].values

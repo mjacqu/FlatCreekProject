@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import itertools
+import seaborn
+
 
 '''
 - Calculate superelevation and resulting flow velociteis using trimline elevations
@@ -33,15 +35,28 @@ boundary1 = [1100, 1300]
 boundary2 = [1300, 1500]
 boundary3 = [1500, 1700]
 boundary4 = [1700, 1900]
-boundary4 = [1900, 2100]
+boundary5 = [1900, 2100]
 superelev2015_E1 = elevations.H_2015e[(elevations.dist_2015e > boundary1[0])& (elevations.dist_2015e < boundary1[1])].mean()
 superelev2015_W1 = elevations.H_2015w[(elevations.dist_2015w > boundary1[0])& (elevations.dist_2015w < boundary1[1])].mean()
 superelev2015_E2 = elevations.H_2015e[(elevations.dist_2015e > boundary2[0])& (elevations.dist_2015e < boundary2[1])].mean()
 superelev2015_W2 = elevations.H_2015w[(elevations.dist_2015w > boundary2[0])& (elevations.dist_2015w < boundary2[1])].mean()
+superelev2015_E3 = elevations.H_2015e[(elevations.dist_2015e > boundary3[0])& (elevations.dist_2015e < boundary3[1])].mean()
+superelev2015_W3 = elevations.H_2015w[(elevations.dist_2015w > boundary3[0])& (elevations.dist_2015w < boundary3[1])].mean()
+superelev2015_E4 = elevations.H_2015e[(elevations.dist_2015e > boundary4[0])& (elevations.dist_2015e < boundary4[1])].mean()
+superelev2015_W4 = elevations.H_2015w[(elevations.dist_2015w > boundary4[0])& (elevations.dist_2015w < boundary4[1])].mean()
+superelev2015_E5 = elevations.H_2015e[(elevations.dist_2015e > boundary5[0])& (elevations.dist_2015e < boundary5[1])].mean()
+superelev2015_W5 = elevations.H_2015w[(elevations.dist_2015w > boundary5[0])& (elevations.dist_2015w < boundary5[1])].mean()
 superelev2015_lenE1 = len(elevations.H_2015e[(elevations.dist_2015e > boundary1[0])& (elevations.dist_2015e < boundary1[1])])
 superelev2015_lenW1 = len(elevations.H_2015w[(elevations.dist_2015w > boundary1[0])& (elevations.dist_2015w < boundary1[1])])
 superelev2015_lenE2 = len(elevations.H_2015e[(elevations.dist_2015e > boundary2[0])& (elevations.dist_2015e < boundary2[1])])
 superelev2015_lenW2 = len(elevations.H_2015w[(elevations.dist_2015w > boundary2[0])& (elevations.dist_2015w < boundary2[1])])
+superelev2015_lenE3 = len(elevations.H_2015e[(elevations.dist_2015e > boundary3[0])& (elevations.dist_2015e < boundary3[1])])
+superelev2015_lenW3 = len(elevations.H_2015w[(elevations.dist_2015w > boundary3[0])& (elevations.dist_2015w < boundary3[1])])
+superelev2015_lenE4 = len(elevations.H_2015e[(elevations.dist_2015e > boundary4[0])& (elevations.dist_2015e < boundary4[1])])
+superelev2015_lenW4 = len(elevations.H_2015w[(elevations.dist_2015w > boundary4[0])& (elevations.dist_2015w < boundary4[1])])
+superelev2015_lenE5 = len(elevations.H_2015e[(elevations.dist_2015e > boundary5[0])& (elevations.dist_2015e < boundary5[1])])
+superelev2015_lenW5 = len(elevations.H_2015w[(elevations.dist_2015w > boundary5[0])& (elevations.dist_2015w < boundary5[1])])
+
 
 #plot trim lines and means
 fig = plt.figure(figsize = (15,3))
@@ -55,15 +70,29 @@ plt.plot(elevations.dist_2015e[(elevations.dist_2015e > boundary2[0])& (elevatio
          np.ones(superelev2015_lenE2)*superelev2015_E2, 'darkblue', label = '2015 East Mean 2')
 plt.plot(elevations.dist_2015w[(elevations.dist_2015w > boundary2[0])& (elevations.dist_2015w < boundary2[1])],
          np.ones(superelev2015_lenW2)*superelev2015_W2, 'red', label = '2015 West Mean 2')
+plt.plot(elevations.dist_2015e[(elevations.dist_2015e > boundary3[0])& (elevations.dist_2015e < boundary3[1])],
+         np.ones(superelev2015_lenE3)*superelev2015_E3, 'darkblue', label = '2015 East Mean 1')
+plt.plot(elevations.dist_2015w[(elevations.dist_2015w > boundary3[0])& (elevations.dist_2015w < boundary3[1])],
+         np.ones(superelev2015_lenW3)*superelev2015_W3, 'red', label = '2015 West Mean 1')
+plt.plot(elevations.dist_2015e[(elevations.dist_2015e > boundary4[0])& (elevations.dist_2015e < boundary4[1])],
+         np.ones(superelev2015_lenE4)*superelev2015_E4, 'darkblue', label = '2015 East Mean 1')
+plt.plot(elevations.dist_2015w[(elevations.dist_2015w > boundary4[0])& (elevations.dist_2015w < boundary4[1])],
+         np.ones(superelev2015_lenW4)*superelev2015_W4, 'red', label = '2015 West Mean 1')
+plt.plot(elevations.dist_2015e[(elevations.dist_2015e > boundary5[0])& (elevations.dist_2015e < boundary5[1])],
+         np.ones(superelev2015_lenE5)*superelev2015_E5, 'darkblue', label = '2015 East Mean 1')
+plt.plot(elevations.dist_2015w[(elevations.dist_2015w > boundary5[0])& (elevations.dist_2015w < boundary5[1])],
+         np.ones(superelev2015_lenW5)*superelev2015_W5, 'red', label = '2015 West Mean 1')
 plt.legend()
 plt.show()
 
 # Calculate and plot (boxplot) superelevation based on equations described above
-dH = [superelev2015_E1 - superelev2015_W1, superelev2015_E2 - superelev2015_W2]
+dH = [superelev2015_E1 - superelev2015_W1, superelev2015_E2 - superelev2015_W2,
+        superelev2015_E3 - superelev2015_W3, superelev2015_E4 - superelev2015_W4,
+        superelev2015_E5 - superelev2015_W5]
 g = 9.81 #ms^-2
-C_est = [11.2, 14.2, 11.7, 13.1, 12.1, 8.49, 5.98, 3.71 ] # circumference of circles R1-R8 drawn in Google Earth and saved as kmz files
+C_est = [ 14.2, 11.7, 13.1, 12.1, 8.49, 5.98 ] # circumference of circles R2-R7 drawn in Google Earth and saved as kmz files
 R_est = [(x*1000)/(2*np.pi) for x in C_est]
-width = [760, 650, 538, 615, 538, 886, 792, 705, 561, 690]
+width = [760, 650, 538, 615, 886, 792]
 beta = [(float(dH)/width) for dH, width in itertools.product(dH,width)] # all possible beta parameters
 
 u_superelevation2015 = [np.sqrt(R*g*beta) for R,beta in itertools.product(R_est,beta)]
@@ -121,12 +150,25 @@ plt.show()
 
 
 # #### No superelevation in case of the 2013 flow because the "super-elevation" is opposite to the expected pattern (i.e. where it turns left at West Hill, the eastern elevation is lower).
+
+# Velocity estimation from seismic data:
+# 2013
+est_time13 = [305, 280, 415, 390] #duration in seconds estimated visually from seismic data
+est_dist13 = [9.26, 10.35] #estimated travel distances
+seismic_vel_2013 = [(l*1000)/t for l,t in itertools.product(est_dist13,est_time13)]
+
+# 2015
+est_time15 = [290, 350] #duration in seconds estimated visually from seismic data
+est_dist15 = [11.58] #estimated travel distances in km
+seismic_vel_2015 = [(l*1000)/t for l,t in itertools.product(est_dist15,est_time15)]
+
 # plot with all velocity box subplots
-boxplot = plt.boxplot(u_hill2013, u_hill2015)
-[item.get_ydata() for item in boxplot['whiskers']]
-boxplot = plt.boxplot(u_hill2015)
-[item.get_ydata() for item in boxplot['whiskers']]
-boxplot = plt.boxplot(u_superelevation2015)
-[item.get_ydata() for item in boxplot['whiskers']]
-plt.title('Flat Creek Flow Velocities')
+all_vel = {'2013 runup' : np.array(u_hill2013[0]), '2013 seismic' : np.array(seismic_vel_2013), '2015 runup' : np.array(u_hill2015[0]),
+            '2015 seismic' : np.array(seismic_vel_2015), '2015 superelevation' : np.array(u_superelevation2015)}
+vel_overview = pd.DataFrame({key:pd.Series(value) for key, value in all_vel.items()})
+
+ax = plt.subplots(figsize=(8, 4))
+ax = seaborn.boxplot(data=vel_overview, palette="hls")
+ax = seaborn.swarmplot(data=vel_overview, color="0", alpha = '0.7')
+plt.ylabel('Velocity [m/s]')
 plt.show()

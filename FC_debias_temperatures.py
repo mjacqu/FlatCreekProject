@@ -4,8 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import matplotlib.dates as mdates
 from scipy import stats
-import numpy.polynomial.polynomial as poly
-from getnprint_trend import get_trend
+from VariousFunctions_FC import get_trend
 
 '''
 Explore chisana snotel data and downscaled ERA interim data. De-bias ERA interim
@@ -47,7 +46,7 @@ ERAChisana.index = pd.to_datetime(ERAChisana.index, format = '%Y-%m-%d')
 # Elevation corrections
 chisana_snotel_elev = 1011.9 #m
 ChisanaERA_elev = 1586.5 #m
-glacier_elev = 2216 #m
+glacier_elev = 2215 #m
 FlatCreekERA_elev = 1948 #m
 lapse_rate = 6.0*10**(-3)  #degrees per m
 Chisana_lapse = (ChisanaERA_elev-chisana_snotel_elev)*lapse_rate
@@ -99,8 +98,8 @@ overlap = pd.date_range(start ='2008-07-16', end = '2015-10-29')
 fig = plt.figure(figsize=(8, 8))
 plt.scatter(ERAChisana.loc[overlap].T_mean, chisana.loc[overlap].T_avg, label = 'original')
 plt.scatter(ERAChisana.loc[overlap].mean_lapse, chisana.loc[overlap].T_avg, label = 'Chisana lapse rate corrected')
-plt.scatter(FlatCreekERA.loc[overlap].mean_lapse, chisana.loc[overlap].T_avg, label = 'FlatCreek lapse rate corrected')
-plt.scatter(FlatCreekERA.loc[overlap].mean_lapse, ERAChisana.loc[overlap].mean_lapse, label = 'ERA-ERA')
+#plt.scatter(FlatCreekERA.loc[overlap].mean_lapse, chisana.loc[overlap].T_avg, label = 'FlatCreek lapse rate corrected')
+#plt.scatter(FlatCreekERA.loc[overlap].mean_lapse, ERAChisana.loc[overlap].mean_lapse, label = 'ERA-ERA')
 plt.plot((-40, 40), (-40, 40),'k')
 plt.xlim(-50, 20)
 plt.ylim(-50, 20)
@@ -116,43 +115,43 @@ plt.show()
 a = np.array(ERAChisana.loc[overlap].mean_lapse)
 b = np.array(chisana.loc[overlap].T_avg)
 nanidx = np.isfinite(a) & np.isfinite(b)
-coefs = poly.polyfit(a[nanidx], b[nanidx], 1)
+coefs = stats.linregress(a[nanidx], b[nanidx])
 print('regression coefficients: '+ str(coefs))
 plt.plot(a, b, 'o')
 #plt.plot(a, coefs[2]*pow(a,2) + coefs[1]*a + coefs[0],'.') #quadratic function
-plt.plot(a, coefs[1]*a + coefs[0],'.')
+plt.plot(a, coefs[0]*a + coefs[1],'.')
 plt.show()
 
 # 2. then for daily maximum temperature
 a = np.array(ERAChisana.loc[overlap].max_lapse)
 b = np.array(chisana.loc[overlap].T_max)
 nanidx = np.isfinite(a) & np.isfinite(b)
-max_coefs = poly.polyfit(a[nanidx], b[nanidx], 2)
+max_coefs = stats.linregress(a[nanidx], b[nanidx])
 print('regression coefficients: '+ str(max_coefs))
 plt.plot(a, b, 'o')
-plt.plot(a, max_coefs[2]*pow(a,2) + max_coefs[1]*a + max_coefs[0],'.') #quadratic function
-#plt.plot(a, max_coefs[1]*a + max_coefs[0],'.')
+#plt.plot(a, max_coefs[2]*pow(a,2) + max_coefs[1]*a + max_coefs[0],'.') #quadratic function
+plt.plot(a, max_coefs[0]*a + max_coefs[1],'.')
 plt.show()
 
 
 # apply linear function derived above to lapse rate corrected data for both Chisana and Flat Creek
 ####### Mean Temp #########
-ERAChisana['mean_debias'] = coefs[1]*ERAChisana.mean_lapse + coefs[0]
-FlatCreekERA['mean_debias'] = coefs[1]*FlatCreekERA.mean_lapse + coefs[0]
+ERAChisana['mean_debias'] = coefs[0]*ERAChisana.mean_lapse + coefs[1]
+FlatCreekERA['mean_debias'] = coefs[0]*FlatCreekERA.mean_lapse + coefs[1]
 
 # apply linear function derived above to lapse rate corrected data for both Chisana and Flat Creek
 ##### MAX Temp ###########
-#ERAChisana['max_debias'] = max_coefs[1]*ERAChisana.max_lapse + max_coefs[0]
-#FlatCreekERA['max_debias'] = max_coefs[1]*FlatCreekERA.max_lapse + max_coefs[0]
+ERAChisana['max_debias'] = max_coefs[0]*ERAChisana.max_lapse + max_coefs[1]
+FlatCreekERA['max_debias'] = max_coefs[0]*FlatCreekERA.max_lapse + max_coefs[1]
 
-ERAChisana['max_debias'] = max_coefs[2]*ERAChisana.max_lapse**2 + max_coefs[1]*ERAChisana.max_lapse + max_coefs[0]
-FlatCreekERA['max_debias'] = max_coefs[2]*FlatCreekERA.max_lapse**2 + max_coefs[1]*FlatCreekERA.max_lapse + max_coefs[0]
+#ERAChisana['max_debias'] = max_coefs[2]*ERAChisana.max_lapse**2 + max_coefs[1]*ERAChisana.max_lapse + max_coefs[0]
+#FlatCreekERA['max_debias'] = max_coefs[2]*FlatCreekERA.max_lapse**2 + max_coefs[1]*FlatCreekERA.max_lapse + max_coefs[0]
 
 
-fig = plt.figure(figsize=(10, 10))
-plt.scatter(ERAChisana.loc[overlap].max_lapse, chisana.loc[overlap].T_max, label = 'original')
-plt.scatter(ERAChisana.loc[overlap].max_debias, chisana.loc[overlap].T_max, label = 'Chisana de-biased')
-plt.scatter(FlatCreekERA.loc[overlap].max_debias, chisana.loc[overlap].T_max,label = 'FlatCreek de-biased')
+fig = plt.figure(figsize=(8, 8))
+plt.scatter(ERAChisana.loc[overlap].max_lapse, chisana.loc[overlap].T_max, label = 'Lapse rate corrected')
+plt.scatter(ERAChisana.loc[overlap].max_debias, chisana.loc[overlap].T_max, label = 'Bias corrected')
+#plt.scatter(FlatCreekERA.loc[overlap].max_debias, chisana.loc[overlap].T_max,label = 'FlatCreek de-biased')
 #plt.scatter(ERAChisana.loc[overlap].max_debias, FlatCreekERA.loc[overlap].max_debias, label = 'ERA-ERA')
 plt.plot((-40, 40), (-40, 40),'k')
 plt.xlim(-50, 20)

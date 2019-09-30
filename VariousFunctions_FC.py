@@ -26,3 +26,38 @@ def get_std(df, year):
     summer_outlier = summer_max - summer_mean
     anomaly = (summer_outlier/summer_std)
     print(anomaly)
+
+def water_availability(df, ddf_i, ddf_s):
+    total_snow = np.zeros(len(df))
+    melt = np.zeros(len(df))
+    total_rain = np.zeros(len(df))
+    for i in range(0, len(df)):
+        if df.index[i].month == 9 and df.index[i].day == 30 and df.index[i].hour == 0:
+            print('Resetting values at the end of WY ' + str(df.index[i].year))
+            total_snow[i] = 0
+            melt[i] = 0
+            total_rain[i] = 0
+        else:
+            # if temps are negative, accumulate snow, melt and rain stay unchanged
+            if df.t2_debias[i] <= 0:
+                total_snow[i] = total_snow[i-1] + df.pcpt[i]
+                melt[i] = melt[i-1]
+                total_rain[i] = total_rain[i-1]
+            # if temps are positive:
+            else:
+                # add precip:
+                total_rain[i] = total_rain[i-1] + df.pcpt[i]
+                # start melting using different melt factors for snow and ice:
+                if total_snow[i-1] > 0:
+                    #check if enough snow to melt
+                    max_snow_melt = df.t2_debias[i]*ddf_s
+                    if max_snow_melt < total_snow[i-1]:
+                        total_snow[i] = total_snow[i-1] - max_snow_melt
+                        melt[i] = melt[i-1] + df.t2_debias[i] * ddf_s
+                    else:
+                        total_snow[i] = 0
+                        melt[i] = melt[i-1] + total_snow[i-1] + (df.t2_debias[i]*ddf_s-total_snow[i-1])*(ddf_i/ddf_s)
+                else:
+                    total_snow[i] = 0
+                    melt[i] = melt[i-1] + df.t2_debias[i]*ddf_i
+    return df.index, melt, total_rain, total_snow

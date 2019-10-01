@@ -62,6 +62,11 @@ for e in calc_elevations:
     FC_summer_water_trend = VariousFunctions_FC.get_trend(FC_water_availability_summer,1)
     Summer_Water[str(e)] = FC_water_availability_summer
 
+Summer_Water.to_csv('FC_Water_all_Elevations.csv', header = True)
+
+
+'''
+Not currently working with above code bc of changed variable names
 
 # Plot water availability
 fig, ax = plt.subplots(figsize = (18,7))
@@ -100,3 +105,5 @@ FC_hourly201208_201209 = FC_hourly2012[FC_hourly2012.index.month == 9]
 plt.plot((FC_hourly201208_201209.groupby(FC_hourly201208_201209.index.day).melt.max()
 - FC_hourly201208_201209.groupby(FC_hourly201208_201209.index.day).melt.min()), '.:')
 plt.show()
+
+'''

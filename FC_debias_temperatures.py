@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import matplotlib.dates as mdates
 from scipy import stats
+from sklearn.metrics import r2_score
 from VariousFunctions_FC import get_trend
 
 '''
@@ -112,25 +113,25 @@ plt.show()
 
 # fit linear regression function to lapse-rate corrected vs. snotel data
 # 1. for daily mean temperature
-a = np.array(ERAChisana.loc[overlap].mean_lapse)
-b = np.array(chisana.loc[overlap].T_avg)
-nanidx = np.isfinite(a) & np.isfinite(b)
-coefs = stats.linregress(a[nanidx], b[nanidx])
-print('regression coefficients: '+ str(coefs))
-plt.plot(a, b, 'o')
+x = np.array(ERAChisana.loc[overlap].mean_lapse)
+y = np.array(chisana.loc[overlap].T_avg)
+nanidx = np.isfinite(x) & np.isfinite(y)
+coefs = stats.linregress(x[nanidx], y[nanidx])
+print('r2-linear: ' + str(r2_score(y[nanidx], coefs[0]*x[nanidx] + coefs[1])))
+plt.plot(x, y, 'o')
 #plt.plot(a, coefs[2]*pow(a,2) + coefs[1]*a + coefs[0],'.') #quadratic function
-plt.plot(a, coefs[0]*a + coefs[1],'.')
+plt.plot(x, coefs[0]*x + coefs[1])
 plt.show()
 
 # 2. then for daily maximum temperature
-a = np.array(ERAChisana.loc[overlap].max_lapse)
-b = np.array(chisana.loc[overlap].T_max)
-nanidx = np.isfinite(a) & np.isfinite(b)
-max_coefs = stats.linregress(a[nanidx], b[nanidx])
-print('regression coefficients: '+ str(max_coefs))
-plt.plot(a, b, 'o')
+x = np.array(ERAChisana.loc[overlap].max_lapse)
+y = np.array(chisana.loc[overlap].T_max)
+nanidx = np.isfinite(x) & np.isfinite(y)
+max_coefs = stats.linregress(x[nanidx], y[nanidx])
+print('r2-linear: ' + str(r2_score(y[nanidx], max_coefs[0]*x[nanidx] + max_coefs[1])))
+plt.plot(x, y, 'o')
 #plt.plot(a, max_coefs[2]*pow(a,2) + max_coefs[1]*a + max_coefs[0],'.') #quadratic function
-plt.plot(a, max_coefs[0]*a + max_coefs[1],'.')
+plt.plot(x, max_coefs[0]*x + max_coefs[1])
 plt.show()
 
 

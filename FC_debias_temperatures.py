@@ -116,22 +116,32 @@ plt.show()
 x = np.array(ERAChisana.loc[overlap].mean_lapse)
 y = np.array(chisana.loc[overlap].T_avg)
 nanidx = np.isfinite(x) & np.isfinite(y)
+#linear regression
 coefs = stats.linregress(x[nanidx], y[nanidx])
 print('r2-linear: ' + str(r2_score(y[nanidx], coefs[0]*x[nanidx] + coefs[1])))
+#quadratic regression
+coefs_quad = np.polyfit(x[nanidx], y[nanidx],2)
+print('r2-quadratic: ' + str(r2_score(y[nanidx], coefs_quad[0]*np.square(x[nanidx]) + coefs_quad[1]*x[nanidx] +coefs_quad[2])))
+
 plt.plot(x, y, 'o')
-#plt.plot(a, coefs[2]*pow(a,2) + coefs[1]*a + coefs[0],'.') #quadratic function
 plt.plot(x, coefs[0]*x + coefs[1])
+plt.plot(x, coefs_quad[0]*np.square(x) + coefs_quad[1]*x +coefs_quad[2],'.')
 plt.show()
 
 # 2. then for daily maximum temperature
 x = np.array(ERAChisana.loc[overlap].max_lapse)
 y = np.array(chisana.loc[overlap].T_max)
 nanidx = np.isfinite(x) & np.isfinite(y)
+#linear regression
 max_coefs = stats.linregress(x[nanidx], y[nanidx])
 print('r2-linear: ' + str(r2_score(y[nanidx], max_coefs[0]*x[nanidx] + max_coefs[1])))
+#quadratic regression
+max_coefs_quad = np.polyfit(x[nanidx], y[nanidx],2)
+print('r2-quadratic: ' + str(r2_score(y[nanidx], max_coefs_quad[0]*np.square(x[nanidx]) + max_coefs_quad[1]*x[nanidx] + max_coefs_quad[2])))
+
 plt.plot(x, y, 'o')
-#plt.plot(a, max_coefs[2]*pow(a,2) + max_coefs[1]*a + max_coefs[0],'.') #quadratic function
 plt.plot(x, max_coefs[0]*x + max_coefs[1])
+plt.plot(x, max_coefs_quad[0]*np.square(x) + max_coefs_quad[1]*x + max_coefs_quad[2],'.')
 plt.show()
 
 

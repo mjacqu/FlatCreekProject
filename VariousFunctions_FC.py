@@ -1,5 +1,6 @@
 import numpy as np
 from scipy import stats
+import pandas as pd
 
 
 def get_trend(x,deg):
@@ -28,6 +29,11 @@ def get_std(df, year):
     print(anomaly)
 
 def water_availability(df, ddf_i, ddf_s):
+    '''
+    df = pandas data fram with time as index, temperature and Precipitation
+    ddf_i (float) = degree-day factor for ice melting
+    ddf_s (float = degree-day factor for snow melt)
+    '''
     total_snow = np.zeros(len(df))
     melt = np.zeros(len(df))
     total_rain = np.zeros(len(df))
@@ -39,7 +45,7 @@ def water_availability(df, ddf_i, ddf_s):
             total_rain[i] = 0
         else:
             # if temps are negative, accumulate snow, melt and rain stay unchanged
-            if df.t2_debias[i] <= 0:
+            if df.t2_lapse[i] <= 0:
                 total_snow[i] = total_snow[i-1] + df.pcpt[i]
                 melt[i] = melt[i-1]
                 total_rain[i] = total_rain[i-1]
@@ -50,14 +56,14 @@ def water_availability(df, ddf_i, ddf_s):
                 # start melting using different melt factors for snow and ice:
                 if total_snow[i-1] > 0:
                     #check if enough snow to melt
-                    max_snow_melt = df.t2_debias[i]*ddf_s
+                    max_snow_melt = df.t2_lapse[i]*ddf_s
                     if max_snow_melt < total_snow[i-1]:
                         total_snow[i] = total_snow[i-1] - max_snow_melt
-                        melt[i] = melt[i-1] + df.t2_debias[i] * ddf_s
+                        melt[i] = melt[i-1] + df.t2_lapse[i] * ddf_s
                     else:
                         total_snow[i] = 0
-                        melt[i] = melt[i-1] + total_snow[i-1] + (df.t2_debias[i]*ddf_s-total_snow[i-1])*(ddf_i/ddf_s)
+                        melt[i] = melt[i-1] + total_snow[i-1] + (df.t2_lapse[i]*ddf_s-total_snow[i-1])*(ddf_i/ddf_s)
                 else:
                     total_snow[i] = 0
-                    melt[i] = melt[i-1] + df.t2_debias[i]*ddf_i
-    return df.index, melt, total_rain, total_snow
+                    melt[i] = melt[i-1] + df.t2_lapse[i]*ddf_i
+    return pd.DataFrame(data=np.column_stack((melt,total_rain,total_snow)),index=df.index, columns = ['melt', 'tot_rain', 'tot_snow'])

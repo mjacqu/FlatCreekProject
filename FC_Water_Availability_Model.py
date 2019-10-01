@@ -27,41 +27,40 @@ FC_hourly_pcpt.index = FC_hourly_pcpt.index.tz_localize(None)
 
 FC_hourly['pcpt'] = FC_hourly_pcpt.pcpt
 
+Summer_Water = pd.DataFrame()
 
 # Correct temperature data
-ERA_elev = 1948
-#calc_elev = 2200
-calc_elevations = 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700 #to cycle through all elevation bands
-lapse_rate = 0.006
-FC_hourly['t2_lapse'] = FC_hourly.t2  + ((ERA_elev - calc_elev) * lapse_rate) #lapse rate of 0.6K per 100m as in Kääb et al., 2018
 
 # temperature de-biasing
-reg_coefs = [1.4781479 , 1.8307034 , 0.02481807] #coefficients from correction for max temp from FlatCreekMeteo-datetimeindex.ipynb
-FC_hourly['t2_debias'] = reg_coefs[2]*FC_hourly.t2_lapse**2 + reg_coefs[1]*FC_hourly.t2_lapse + reg_coefs[0]
-max_coefs = [1.6084426899832067, 3.4718580485725994]
-FC_hourly['t2_debias'] = reg_coefs[0]*FC_hourly.t2_lapse + reg_coefs[1]
+reg_coefs = [0.01647073,  1.68824293, -0.28782617] #coefficients from correction for max temp from FlatCreekMeteo-datetimeindex.ipynb
+FC_hourly['t2_debias'] = reg_coefs[0]*np.square(FC_hourly.t2) + reg_coefs[1]*FC_hourly.t2 + reg_coefs[2]
+ERA_elev = 1948
 
-# Hourly melt model
-df = FC_hourly
-ddf_i = 4.87/24
-ddf_s = 2.7/24
-t, m, r, s = VariousFunctions_FC.water_availability(df, ddf_i, ddf_s)
-
-#aggregate in data frame
-FC_hourly['melt'] = melt
-FC_hourly['tot_rain'] = total_rain
-FC_hourly['tot_snow'] = total_snow
-FC_hourly['total_water'] = FC_hourly['melt'] + FC_hourly['tot_rain']
-
-# #### Group by months: water
-FC_Summer = FC_hourly[(FC_hourly.index.month==4) | (FC_hourly.index.month==5) | (FC_hourly.index.month==6) | (FC_hourly.index.month==7)]
-FC_water_availability = FC_hourly.groupby(FC_hourly.index.year).total_water.max()
-FC_water_availability_summer = (FC_Summer.groupby(FC_Summer.index.year).total_water.max()
-                                - FC_Summer.groupby(FC_Summer.index.year).total_water.min())
-FC_melt_summer = (FC_Summer.groupby(FC_Summer.index.year).melt.max()
-                  - FC_Summer.groupby(FC_Summer.index.year).melt.min())
-
-FC_summer_water_trend = VariousFunctions_FC.get_trend(FC_water_availability_summer,1)
+#calc_elev = 2700
+calc_elevations = 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700 #to cycle through all elevation bands
+for e in calc_elevations:
+    lapse_rate = 0.006
+    FC_hourly['t2_lapse'] = FC_hourly.t2_debias + ((ERA_elev - e) * lapse_rate) #lapse rate of 0.6K per 100m as in Kääb et al., 2018
+    # Hourly melt model
+    df = FC_hourly
+    ddf_i = 4.87/24
+    ddf_s = 2.7/24
+    water_hourly = VariousFunctions_FC.water_availability(df, ddf_i, ddf_s)
+    print(e)
+    #aggregate into original data frame
+    FC_hourly['melt'] = water_hourly['melt']
+    FC_hourly['tot_rain'] = water_hourly['tot_rain']
+    FC_hourly['tot_snow'] = water_hourly['tot_snow']
+    FC_hourly['total_water'] = FC_hourly['melt'] + FC_hourly['tot_rain']
+    # #### Group by months: water
+    FC_Summer = FC_hourly[(FC_hourly.index.month==4) | (FC_hourly.index.month==5) | (FC_hourly.index.month==6) | (FC_hourly.index.month==7)]
+    FC_water_availability = FC_hourly.groupby(FC_hourly.index.year).total_water.max()
+    FC_water_availability_summer = (FC_Summer.groupby(FC_Summer.index.year).total_water.max()
+                                    - FC_Summer.groupby(FC_Summer.index.year).total_water.min())
+    FC_melt_summer = (FC_Summer.groupby(FC_Summer.index.year).melt.max()
+                      - FC_Summer.groupby(FC_Summer.index.year).melt.min())
+    FC_summer_water_trend = VariousFunctions_FC.get_trend(FC_water_availability_summer,1)
+    Summer_Water[str(e)] = FC_water_availability_summer
 
 
 # Plot water availability

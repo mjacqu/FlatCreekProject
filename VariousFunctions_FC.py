@@ -20,10 +20,10 @@ def get_trend(x,deg):
     trend = [coefficients[0]*x + coefficients[1] for x in range(0,len(x.index))]
     return (trend, slope, nrmse)
 
-def get_std(df, year):
-    summer_mean = np.mean(df)
-    summer_std = np.std(df)
-    summer_max = df[df.index == year].values
+def get_std(df, column, year):
+    summer_mean = np.mean(df[column])
+    summer_std = np.std(df[column])
+    summer_max = df[column][df.time == year].values
     summer_outlier = summer_max - summer_mean
     anomaly = (summer_outlier/summer_std)
     print(anomaly)

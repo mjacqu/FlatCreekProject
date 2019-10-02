@@ -23,10 +23,10 @@ plt.savefig('FC_all_elevations.png')
 #Print all Standard Deviations:
 
 elevations = 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700
-year = 2013
+year = 2015
 for e in elevations:
     print('elevation: '+ str(e))
-    print(VariousFunctions_FC.get_std(fc_all, str(e), year))
+    VariousFunctions_FC.get_std(fc_all, str(e), year)
 
 
 '''

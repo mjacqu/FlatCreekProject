@@ -6,9 +6,10 @@ import math
 import json
 import Taan_fjord_helpers
 import matplotlib.pyplot as plt
+import scipy.stats
 
-bulge2011 = '/Users/mistral/Documents/CUBoulder/Science/Sulzer/data/BulgeSize/ShadowLengths2011_189.4083az.geojson'
-bulge2011_adj = '/Users/mistral/Documents/CUBoulder/Science/Sulzer/data/BulgeSize/ShadowLengths2011_189.4083az_adjusted.geojson'
+bulge2011 = '/Users/mistral/Documents/CUBoulder/Science/Sulzer/data/BulgeSize/2011_ShadowLengths.geojson'
+bulge2011_adj = '/Users/mistral/Documents/CUBoulder/Science/Sulzer/data/BulgeSize/2011_ShadowLengths_adj.geojson'
 bulge2009 = '/Users/mistral/Documents/CUBoulder/Science/Sulzer/data/BulgeSize/ShadowLengths2009_168.28az.geojson'
 #Flat Creek Location
 lat = 61.642563
@@ -65,7 +66,7 @@ def calculate_bulge_elevation(shadow_lengths, sun_elevation, pixel_size):
     # Extract local elevation:
     altitudes = []
     for l in range(0, shadows.shape[0]):
-        row, col, alt = Taan_fjord_helpers.median_of_square('/Users/mistral/Documents/CUBoulder/Science/Sulzer/VolumeCalculations/NewProcessingSummer2018/2012_Howat_dxdydz.tif',
+        row, col, alt = Taan_fjord_helpers.median_of_square('/Users/mistral/Documents/CUBoulder/Science/Sulzer/VolumeCalculations/NewProcessingSummer2018/2012_Howat_dxdydz_EPSG3338.tif',
         [shadows.start_x[l], shadows.start_y[l]], 'EPSG:3338', pixel_size)
         altitudes.append(alt)
     #append elevations to shadows dataframe
@@ -100,8 +101,27 @@ plt.fill_between(bulge_elevation_2009.end_x, bulge_elevation_2009.bulge_elevatio
 plt.plot(bulge_elevation_2011.end_x, bulge_elevation_2011.bulge_elevation, label = '2011')
 plt.fill_between(bulge_elevation_2011.end_x, bulge_elevation_2011.bulge_elevation_min,
     bulge_elevation_2011.bulge_elevation_max, alpha = 0.2)
+plt.plot(bulge_elevation_2011_adj.end_x, bulge_elevation_2011_adj.bulge_elevation, label = '2011_adj')
+plt.fill_between(bulge_elevation_2011_adj.end_x, bulge_elevation_2011_adj.bulge_elevation_min,
+        bulge_elevation_2011_adj.bulge_elevation_max, alpha = 0.2)
 plt.ylim([2100,2300])
 plt.xlabel('x [UTM]')
 plt.ylabel('Elevation [m asl]')
+plt.title('Glacier surface elevation on Flat Creek Glacier bulge')
 plt.legend()
+plt.show()
+
+#calcuate baseline elevations for "bottom" of bulge
+baseline = pd.read_csv('/Users/mistral/Documents/CUBoulder/Science/Sulzer/data/BulgeSize/baseline_elevations.csv',
+    names = ['dist', 'x', 'y', 'h'])
+
+baseline_func = scipy.stats.linregress(baseline.x, baseline.h)
+baseline_2009 = baseline_func[1]+baseline_func[0]*bulge_elevation_2009.end_x
+baseline_2011_adj = baseline_func[1]+baseline_func[0]*bulge_elevation_2011_adj.end_x
+
+plt.plot(bulge_elevation_2009.end_x, bulge_elevation_2009.bulge_elevation - baseline_2009)
+plt.plot(bulge_elevation_2011_adj.end_x, bulge_elevation_2011_adj.bulge_elevation - baseline_2011_adj)
+plt.xlabel('x [UTM]')
+plt.ylabel('thickness [m]')
+plt.title('Bulge thickness')
 plt.show()

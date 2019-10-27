@@ -1,12 +1,12 @@
 import richdem
-import matplotlib.pyplot as plot
+import matplotlib.pyplot as plt
 
 
 infile = '/Users/mistral/Documents/CUBoulder/Science/Sulzer/data/Hydrology/ifsar_merged.tif'
 
 rd = richdem.LoadGDAL(infile, no_data = -9999)
 
-filled = richdem.FillDepressions(rd, in_place=False)
+#filled = richdem.FillDepressions(rd, in_place=False)
 flow_acc = richdem.FlowAccumulation(rd, method = 'Rho8')
 
 

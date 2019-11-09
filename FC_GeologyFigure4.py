@@ -12,6 +12,8 @@ mean80s = fc_all['2100'][(fc_all['time'] > 1979) & (fc_all['time'] < 1990)].mean
 mean90s = fc_all['2100'][(fc_all['time'] > 1989) & (fc_all['time'] < 2000)].mean()
 mean00s = fc_all['2100'][(fc_all['time'] > 1999) & (fc_all['time'] < 2010)].mean()
 mean10s = fc_all['2100'][(fc_all['time'] > 2009)].mean()
+mean_all = pd.DataFrame(fc_all.mean(axis = 0)[1:])
+mean_all.columns = ['mean']
 
 plt.style.use('ggplot')
 fc_all.plot(x='time', y=["2100",'2300', "2500", '2700'], figsize = (12,6),
@@ -30,13 +32,15 @@ plt.title('Pre-detachment total liquid water availability', fontsize = 22)
 plt.show()
 #plt.savefig('FC_all_elevations_decadalmean.png')
 
-#Print all Standard Deviations:
+# Analyze numbers:
 
 elevations = 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700
-year = 2015
+year = 2013
+#Print all Standard Deviations and factors by which H2O exceeds mean:
 for e in elevations:
     print('elevation: '+ str(e))
     VariousFunctions_FC.get_std(fc_all, str(e), year)
+    fc_all[str(e)][fc_all.time == year].values/mean_all['mean'][mean_all.index == str(e)].values
 
 
 '''

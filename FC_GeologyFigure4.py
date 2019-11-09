@@ -35,7 +35,7 @@ plt.show()
 # Analyze numbers:
 
 elevations = 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700
-year = 2013
+year = 2015
 #Print all Standard Deviations and factors by which H2O exceeds mean:
 for e in elevations:
     print('elevation: '+ str(e))

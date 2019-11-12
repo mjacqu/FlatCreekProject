@@ -23,14 +23,14 @@ plt.hlines(mean90s,1990,1999.9, color = 'grey')
 plt.hlines(mean00s,2000,2009.9, color = 'grey')
 plt.hlines(mean10s,2010,2015.9, color = 'grey')
 plt.xlim([1978,2016])
-ax.tick_params('both', labelsize = 18)
+plt.tick_params('both', labelsize = 18)
 plt.xlabel('Year', fontsize = 20)
 plt.ylabel('Water availability [mm]', fontsize = 20)
-ax.legend(fontsize = 16, loc = 2)
+plt.legend(fontsize = 16, loc = 2)
 plt.legend(title = 'Elevation [m asl]')
 plt.title('Pre-detachment total liquid water availability', fontsize = 22)
 plt.show()
-#plt.savefig('FC_all_elevations_decadalmean.png')
+#plt.savefig('FC_all_elevations_decadalmean.pdf')
 
 # Analyze numbers:
 

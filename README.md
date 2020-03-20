@@ -47,4 +47,39 @@ script:
   Code partially (mostly?) courtesy of Michael Lindgren at UAF.
 
 ## FC_GlacierTimelapse.py
-  Convert set of Geotiffs into pngs with date stamped on image for timelapse animation. 
+  Convert set of Geotiffs into pngs with date stamped on image for timelapse animation.
+
+## FC_GrainSizeDistributions.py
+  Plot grainsize distribution from lab analysis.
+
+## FC_GroundTemps.py
+  Plot data from ground temperature measurements.
+
+## FC_LongitudianlProfiles.py
+  Plots longitudinal profiles along Flat Creek Glacier from DEMs of 2012, 2014 and 2016.
+
+## FC_Seismicity.py
+  Imports seismicity dataset (csv file, downloaded from https://earthquake.usgs.gov/earthquakes/search/)
+  Calculates distances to Flat Creek and plots distance vs time with magnitudes for different EQ.
+
+## FC_Various_AngleOfReach.py
+  Plots angle of reach (Fahrböschung or Mobility Index) for 2013 and 2015 glacier detachments at Flat Creek.
+
+## FC_VolumeCalculations.py
+  Calculate volumes of different detachments of at Flat Creek. Can split erosional (negative surface change) and depositional (positive surface change) for individual budgeting.
+
+## FC_WaterAvailabiltyModel.py
+  Run water availability calculation for Flat Creek at hourly resolution.
+
+## FC_debias_temperatures.py
+  De-bias downscaled ERA interim climate data against Chisana weather station data.
+
+## FC_velocity_estimation.py
+  Calculates superelevation and resulting flow velociteis using trimline elevations in different years from digitized trimlines.
+  Calculate runup velocities of West Hill based on multiple profiles digitized from DEMS that reach from the river over the summit of West Hill.
+
+## VariousFunctions_FC.py
+  Includes functions to get trends from time-series data, standard deviation of individual years relative to long term mean, and water availability calculation.
+
+## VolumeChange.py
+  Calculate volumes of change from raster data within a shapefile. Returns volume and stats.
